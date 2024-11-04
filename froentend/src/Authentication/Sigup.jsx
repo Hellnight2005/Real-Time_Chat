@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
+import profile from '../assets/profile.jpeg'
 function Signup() {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         username: '',
         email: '',
         password: '',
-        pic: null, // Initialize pic as null
+        pic: null,
     });
     const [error, setError] = useState('');
+    const [preview, setPreview] = useState(profile); // Default image
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -18,25 +19,31 @@ function Signup() {
     };
 
     const handleFileChange = (e) => {
-        setFormData({ ...formData, pic: e.target.files[0] }); // Update pic with the uploaded file
+        const file = e.target.files[0];
+        setFormData({ ...formData, pic: file });
+
+        // Set preview URL if a file is selected
+        if (file) {
+            setPreview(URL.createObjectURL(file));
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const formDataToSend = new FormData(); // Create a FormData object
+        const formDataToSend = new FormData();
         formDataToSend.append('username', formData.username);
         formDataToSend.append('email', formData.email);
         formDataToSend.append('password', formData.password);
-        formDataToSend.append('pic', formData.pic); // Append the file to FormData
+        formDataToSend.append('pic', formData.pic);
 
         try {
             const response = await axios.post('/api/signup', formDataToSend, {
                 headers: {
-                    'Content-Type': 'multipart/form-data', // Set content type for file upload
+                    'Content-Type': 'multipart/form-data',
                 },
             });
             console.log(response.data);
-            navigate('/'); // Redirect to homepage on success
+            navigate('/');
         } catch (err) {
             setError('Signup failed. Please try again.');
             console.error(err);
@@ -44,7 +51,7 @@ function Signup() {
     };
 
     const handleBackClick = () => {
-        navigate('/'); // Navigate back to Homepage
+        navigate('/');
     };
 
     return (
@@ -53,6 +60,17 @@ function Signup() {
                 <h2 className="text-white text-2xl mb-4">Sign Up</h2>
                 {error && <p className="text-red-500">{error}</p>}
                 <form onSubmit={handleSubmit}>
+                    <div className="flex items-center gap-4 mb-4">
+                        <img
+                            className="w-10 h-10 rounded-full"
+                            src={preview}
+                            alt="Profile preview"
+                        />
+                        <div className="font-medium text-white">
+                            <div>{formData.username || 'Username'}</div>
+                            <div className="text-sm text-gray-500">Joined in {new Date().toLocaleString('default', { month: 'long', year: 'numeric' })}</div>
+                        </div>
+                    </div>
                     <div className="mb-4">
                         <label className="block text-white mb-2">Username</label>
                         <input
@@ -94,10 +112,9 @@ function Signup() {
                         <input
                             type="file"
                             name="pic"
-                            onChange={handleFileChange} // Handle file input change
+                            onChange={handleFileChange}
                             className="w-full px-4 py-2 rounded"
-                            accept="image/*" // Accept only image files
-                            required
+                            accept="image/*"
                         />
                     </div>
                     <button
