@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import profile from '../assets/profile.jpeg'
+import profile from '../assets/profile.jpeg';
+
 function Signup() {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        username: '',
+        name: '',
         email: '',
         password: '',
         pic: null,
     });
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const [preview, setPreview] = useState(profile); // Default image
 
     const handleChange = (e) => {
@@ -20,9 +22,15 @@ function Signup() {
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
+        const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+
+        if (file && !validTypes.includes(file.type)) {
+            setError('Please upload a valid image (JPEG, PNG, GIF).');
+            return; // Stop processing if the file type is invalid
+        }
+
         setFormData({ ...formData, pic: file });
 
-        // Set preview URL if a file is selected
         if (file) {
             setPreview(URL.createObjectURL(file));
         }
@@ -30,23 +38,44 @@ function Signup() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const formDataToSend = new FormData();
-        formDataToSend.append('username', formData.username);
-        formDataToSend.append('email', formData.email);
-        formDataToSend.append('password', formData.password);
-        formDataToSend.append('pic', formData.pic);
+        setLoading(true);
+        setError('');
+
+        let picUrl = '';
+        if (formData.pic) {
+            const formDataToUpload = new FormData();
+            formDataToUpload.append('file', formData.pic);
+            formDataToUpload.append('upload_preset', 's3top77o');
+
+            try {
+                const cloudinaryResponse = await axios.post(
+                    `https://api.cloudinary.com/v1_1/hellnight2005/image/upload`,
+                    formDataToUpload
+                );
+                picUrl = cloudinaryResponse.data.secure_url;
+            } catch (error) {
+                console.error('Error uploading image to Cloudinary:', error);
+                setError('Image upload failed. Please try again.');
+                setLoading(false);
+                return;
+            }
+        }
 
         try {
-            const response = await axios.post('/api/signup', formDataToSend, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
+            const response = await axios.post('/api/user', {
+                name: formData.name,
+                email: formData.email,
+                password: formData.password,
+                pic: picUrl,
+            }, { headers: { "Content-type": "application/json" } });
+
             console.log(response.data);
             navigate('/');
         } catch (err) {
-            setError('Signup failed. Please try again.');
+            setError(err.response?.data?.message || 'Signup failed. Please try again.');
             console.error(err);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -67,16 +96,18 @@ function Signup() {
                             alt="Profile preview"
                         />
                         <div className="font-medium text-white">
-                            <div>{formData.username || 'Username'}</div>
-                            <div className="text-sm text-gray-500">Joined in {new Date().toLocaleString('default', { month: 'long', year: 'numeric' })}</div>
+                            <div>{formData.name || 'Username'}</div>
+                            <div className="text-sm text-gray-500">
+                                Joined in {new Date().toLocaleString('default', { month: 'long', year: 'numeric' })}
+                            </div>
                         </div>
                     </div>
                     <div className="mb-4">
                         <label className="block text-white mb-2">Username</label>
                         <input
                             type="text"
-                            name="username"
-                            value={formData.username}
+                            name="name"
+                            value={formData.name}
                             onChange={handleChange}
                             className="w-full px-4 py-2 rounded"
                             placeholder="Enter your username"
@@ -119,9 +150,10 @@ function Signup() {
                     </div>
                     <button
                         type="submit"
-                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-300 w-full"
+                        className={`bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-300 w-full ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        disabled={loading}
                     >
-                        Sign Up
+                        {loading ? 'Signing Up...' : 'Sign Up'}
                     </button>
                 </form>
                 <button

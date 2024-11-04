@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+const bcrypt = require("bcrypt");
 const userschema = mongoose.Schema(
   {
     name: {
@@ -9,6 +9,7 @@ const userschema = mongoose.Schema(
     email: {
       type: String,
       require: true,
+      unique: true,
     },
     password: {
       type: String,
@@ -16,7 +17,7 @@ const userschema = mongoose.Schema(
     },
     pic: {
       type: String,
-      require: true,
+
       default:
         "data:image/jpeg;base64,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",
     },
@@ -25,6 +26,19 @@ const userschema = mongoose.Schema(
     timestamps: true,
   }
 );
+
+userschema.methods.matchPassword = async function (password) {
+  return await bcrypt.compare(password, this.password);
+};
+
+userschema.pre("save", async function (next) {
+  if (!this.isModified) {
+    next();
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+});
 
 const User = mongoose.model("User", userschema);
 module.exports = User;

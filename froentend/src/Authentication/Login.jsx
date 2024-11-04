@@ -16,10 +16,10 @@ function Login() {
         e.preventDefault(); // Prevent default form submission
 
         try {
-            const response = await axios.post('/api/login', { email, password }); // Update with your API endpoint
+            const response = await axios.post('/api/user/login', { email, password }); // Update with your API endpoint
             // Handle successful login (e.g., store token, redirect user)
             console.log('Login successful:', response.data);
-            navigate('/dashboard'); // Redirect to dashboard or any other page after login
+            navigate('/'); // Redirect to dashboard or any other page after login
         } catch (err) {
             console.error('Login failed:', err);
             setError('Invalid email or password'); // Set error message if login fails
