@@ -1,31 +1,38 @@
-import React, { useEffect, useState } from 'react'
-import axios from 'axios'
+import React from 'react';
+import { ChatState } from '../context/Chatrovide';
+import SideDraw from '../components/miscellaneous/SideDraw';
+import MyChat from '../components/miscellaneous/MyChat'; // Import your chat component
+import ChatBox from '../components/miscellaneous/ChatBox'; // Import your chat box component
 
-function ChatePage() {
-    const [chats, Setchats] = useState([]);
-    const fetchChat = async () => {
-        try {
-            const response = await axios.get("/api/chat")
-            Setchats(response.data) // Logs only the data part of the response
-
-        } catch (error) {
-            console.error("Error fetching chat data:", error)
-        }
-    }
-
-    useEffect(() => {
-        fetchChat()
-    }, [])
+function ChatPage() {
+    const { user } = ChatState();
 
     return (
-        <div>
-            {chats.map(chat => (
-                <div key={chat.id}>
-                    <strong>{chat.user}:  </strong> {chat.message}
+        <div className="flex flex-col w-full h-screen bg-gray-100">
+            {/* Sidebar component only if user exists */}
+            {user && <SideDraw />}
+
+            <div className="flex flex-1">
+                {/* Main chat area */}
+                <div className="flex flex-row w-full p-6 gap-7">
+                    {/* MyChat component in a smaller window */}
+                    {user && (
+                        <div className="w-1/3 bg-white rounded-lg shadow-md p-4 h-[91.5vh] overflow-y-auto">
+                            <MyChat />
+                        </div>
+                    )}
+
+                    {/* ChatBox component taking the remaining space */}
+                    {user && (
+                        <div className="flex-1 bg-white rounded-lg shadow-md p-4 h-[91.5vh]">
+                            <ChatBox />
+                        </div>
+                    )}
                 </div>
-            ))}
+            </div>
         </div>
-    )
+    );
+
 }
 
-export default ChatePage
+export default ChatPage;

@@ -68,9 +68,14 @@ function Signup() {
                 password: formData.password,
                 pic: picUrl,
             }, { headers: { "Content-type": "application/json" } });
-
+            localStorage.setItem("userInfo", JSON.stringify({
+                id: response.data._id, // Store user ID from the response
+                name: response.data.name, // Store user name from the response
+                email: response.data.email, // Store email from the response
+                pic: response.data.pic,
+            }));
             console.log(response.data);
-            navigate('/');
+            navigate('/chat');
         } catch (err) {
             setError(err.response?.data?.message || 'Signup failed. Please try again.');
             console.error(err);

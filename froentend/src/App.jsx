@@ -5,6 +5,7 @@ import Homepage from './Pages/Homepage'
 import ChatePage from './Pages/ChatePage'
 import Login from './Authentication/Login'
 import Signup from './Authentication/Sigup'
+import ProfileContainer from './components/miscellaneous/Profile'
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
       <Route path='/chat' element={<ChatePage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/profile" element={<ProfileContainer />} />
     </Routes>
 
   )

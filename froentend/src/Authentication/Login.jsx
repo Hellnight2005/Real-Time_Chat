@@ -17,9 +17,17 @@ function Login() {
 
         try {
             const response = await axios.post('/api/user/login', { email, password }); // Update with your API endpoint
-            // Handle successful login (e.g., store token, redirect user)
+
+            // Handle successful login (e.g., store user info in local storage)
+            localStorage.setItem("userInfo", JSON.stringify({
+                id: response.data._id, // Store user ID from the response
+                name: response.data.name, // Store user name from the response
+                email: response.data.email, // Store email from the response
+                pic: response.data.pic, // Store profile picture URL from the response
+            }));
+
             console.log('Login successful:', response.data);
-            navigate('/'); // Redirect to dashboard or any other page after login
+            navigate('/chat'); // Redirect to dashboard or any other page after login
         } catch (err) {
             console.error('Login failed:', err);
             setError('Invalid email or password'); // Set error message if login fails

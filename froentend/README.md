@@ -102,6 +102,58 @@ To set up the project, clone the repository, install dependencies, configure env
 
 ---
 
+# Day 3
+
+**Objectives:**
+
+- Enhance the user profile display component.
+- Implement functionality to retrieve and display user data.
+
+---
+
+**Tasks Completed:**
+
+1. **User Profile Component Development:**
+
+   - Created a `ProfileContainer` component to manage and display user profile information.
+   - Implemented the following features:
+     - Display user profile picture with a circular shape.
+     - Show user ID, name, and email retrieved from local storage.
+     - Fallback to a default profile image if no image is provided.
+
+2. **Data Handling:**
+
+   - Used `useEffect` to retrieve user data from local storage.
+   - Parsed the retrieved user data to update the component state.
+   - Added functionality to generate a random user ID for demonstration purposes.
+
+3. **Click Outside to Navigate:**
+
+   - Implemented functionality to navigate to the chat page when clicking outside the profile container using a `useRef` to track the container.
+
+4. **Styling Enhancements:**
+
+   - Applied Tailwind CSS for layout and styling:
+     - Added a background color for the profile container.
+     - Added hover effects to scale the profile image without rotation.
+     - Styled the text elements for user information with transition effects on hover.
+
+5. **Image Import:**
+
+   - Imported a profile image from the `src/assets` folder.
+   - Ensured the image displays correctly in the profile section.
+
+6. **Testing:**
+   - Verified the functionality of the profile container by testing user data retrieval and navigation.
+
+---
+
+**Next Steps:**
+
+- Implement additional features for user interaction (e.g., editing profile).
+- Enhance user experience with more animations and transitions.
+- Integrate backend services for fetching user data dynamically.
+
 This overview provides the core functionality and routes, making it easy to understand the purpose of each endpoint.
 
 > > > > > > > c9afc27f47b5baa05edb30a73b43f02ae77ff9cd
