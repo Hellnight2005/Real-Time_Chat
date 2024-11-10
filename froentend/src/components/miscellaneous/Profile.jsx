@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 
 const ProfileContainer = () => {
     const [userData, setUserData] = useState({
-        id: '',
         name: '',
         email: '',
         pic: '',
@@ -17,9 +16,7 @@ const ProfileContainer = () => {
         const storedUserInfo = localStorage.getItem('userInfo');
         if (storedUserInfo) {
             const parsedUserInfo = JSON.parse(storedUserInfo);
-            // Generate a random ID for demonstration purposes
-            const randomId = Math.floor(Math.random() * 1000); // Random ID between 0-999
-            setUserData({ ...parsedUserInfo, id: randomId });
+            setUserData(parsedUserInfo);
         } else {
             console.error('User data not found in local storage');
         }
@@ -55,12 +52,13 @@ const ProfileContainer = () => {
                     <img
                         src={userData.pic || 'https://via.placeholder.com/150'}
                         alt="Profile"
-                        className="w-32 h-32 rounded-full mb-4 transition-transform duration-300 ease-in-out hover:scale-110"
+                        className="w-32 h-32 mb-4 rounded-full border-4 border-blue-500 shadow-lg transition-all duration-300 ease-in-out hover:scale-110 hover:rounded-lg"
                     />
+
+
                     <div className="text-lg font-medium text-[#333333] space-y-2">
-                        <p className="transition-colors duration-300 ease-in-out hover:text-[#3399CC]"><strong>ID:</strong> {userData.id}</p>
-                        <p className="transition-colors duration-300 ease-in-out hover:text-[#3399CC]"><strong>Name:</strong> {userData.name}</p>
-                        <p className="transition-colors duration-300 ease-in-out hover:text-[#3399CC]"><strong>Email:</strong> {userData.email}</p>
+                        <p className="transition-colors duration-300 ease-in-out"><strong>Name:</strong> {userData.name}</p>
+                        <p className="transition-colors duration-300 ease-in-out"><strong>Email:</strong> {userData.email}</p>
                     </div>
                 </div>
             </div>

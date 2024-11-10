@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -8,6 +8,14 @@ function Login() {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
+    // Check if the user is already logged in
+    useEffect(() => {
+        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+        if (userInfo && userInfo.token) {
+            navigate('/chat'); // Redirect to chat or any other page if the user is already logged in
+        }
+    }, [navigate]);
+
     const handleBackClick = () => {
         navigate('/'); // Navigate back to Homepage
     };
@@ -16,18 +24,17 @@ function Login() {
         e.preventDefault(); // Prevent default form submission
 
         try {
-            const response = await axios.post('/api/user/login', { email, password }); // Update with your API endpoint
+            const response = await axios.post('/api/user/login', { email, password });
 
-            // Handle successful login (e.g., store user info in local storage)
-            localStorage.setItem("userInfo", JSON.stringify({
-                id: response.data._id, // Store user ID from the response
-                name: response.data.name, // Store user name from the response
-                email: response.data.email, // Store email from the response
-                pic: response.data.pic, // Store profile picture URL from the response
-            }));
+            // Store token and user details in localStorage
+            const { token, _id, name, pic } = response.data;
+            localStorage.setItem(
+                'userInfo',
+                JSON.stringify({ id: _id, name, email, pic, token })
+            );
 
             console.log('Login successful:', response.data);
-            navigate('/chat'); // Redirect to dashboard or any other page after login
+            navigate('/chat'); // Redirect to chat or any other page after login
         } catch (err) {
             console.error('Login failed:', err);
             setError('Invalid email or password'); // Set error message if login fails

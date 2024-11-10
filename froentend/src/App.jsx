@@ -7,6 +7,9 @@ import Login from './Authentication/Login'
 import Signup from './Authentication/Sigup'
 import ProfileContainer from './components/miscellaneous/Profile'
 
+
+import "./App.css"
+
 function App() {
   return (
 
@@ -17,7 +20,6 @@ function App() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/profile" element={<ProfileContainer />} />
     </Routes>
-
   )
 }
 

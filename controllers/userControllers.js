@@ -57,24 +57,32 @@ const authUser = asyncHandler(async (req, res) => {
 });
 // /api/user/?search
 const allUser = asyncHandler(async (req, res) => {
-  // Check if a search query is provided in the request
-  // If a search query exists, create a filter object using MongoDB's $regex operator for case-insensitive partial matching
-  // The filter will match either the `name` or `email` fields based on the search query
-  const keyword = req.query.search
-    ? {
+  try {
+    const searchQuery = req.query.search;
+    let keyword = {};
+
+    if (searchQuery) {
+      // Use a regex pattern that matches only the start or full match of name or email
+      keyword = {
         $or: [
-          { name: { $regex: req.query.search, $options: "i" } },
-          { email: { $regex: req.query.search, $options: "i" } },
+          { name: { $regex: `^${searchQuery}`, $options: "i" } }, // Start with query
+          { email: { $regex: `^${searchQuery}`, $options: "i" } }, // Start with query
         ],
-      }
-    : {}; // If no search query, use an empty filter to retrieve all users
+      };
+    }
 
-  // Query the database to find users matching the filter criteria
-  // Also exclude the current logged-in user from the results by filtering with `_id: { $ne: req.user._id }`
-  const user = await User.find(keyword).find({ _id: { $ne: req.user._id } });
+    // Exclude the logged-in user
+    const userFilter = { _id: { $ne: req.user?._id } };
 
-  // Send the list of users as the response
-  res.send(user);
+    // Query the database with the combined filter
+    const users = await User.find({ ...keyword, ...userFilter });
+
+    // Send the filtered list of users as the response
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ message: "Failed to retrieve users" });
+  }
 });
 
 module.exports = {

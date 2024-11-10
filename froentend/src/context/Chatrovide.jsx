@@ -4,29 +4,35 @@ import { useNavigate } from 'react-router-dom';
 const ChatContext = createContext();
 
 const ChatProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
+    const [userData, setUserData] = useState(null);  // Ensure you have useState imported from 'react'
+
+    const [selectedChat, setSelectedChat] = useState(null);
+    const [chats, setChats] = useState([]);
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-        setUser(userInfo);
+        const storedUserInfo = localStorage.getItem("userInfo");
+        if (storedUserInfo) {
+            setUserData(JSON.parse(storedUserInfo));
+            setLoading(false);
+        } else {
+            navigate('/');
+        }
     }, []);
 
-    useEffect(() => {
-        if (!user) {
-            navigate('/'); // Navigate only if user is not set
-        }
-    }, [user]); // Run this effect when 'user' changes
+    const login = (userInfo) => {
+        setUserData(userInfo);
+        localStorage.setItem("userInfo", JSON.stringify(userInfo));
+    };
 
     return (
-        <ChatContext.Provider value={{ user, setUser }}>
+        <ChatContext.Provider value={{ userData, setUserData, login, selectedChat, setSelectedChat, chats, setChats, loading }}>
             {children}
         </ChatContext.Provider>
     );
 };
 
-export const ChatState = () => {
-    return useContext(ChatContext);
-};
+export const ChatState = () => useContext(ChatContext);
 
 export default ChatProvider;

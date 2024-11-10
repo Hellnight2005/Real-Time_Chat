@@ -62,30 +62,36 @@ function Signup() {
         }
 
         try {
-            const response = await axios.post('/api/user', {
-                name: formData.name,
-                email: formData.email,
-                password: formData.password,
-                pic: picUrl,
-            }, { headers: { "Content-type": "application/json" } });
-            localStorage.setItem("userInfo", JSON.stringify({
-                id: response.data._id, // Store user ID from the response
-                name: response.data.name, // Store user name from the response
-                email: response.data.email, // Store email from the response
-                pic: response.data.pic,
-            }));
-            console.log(response.data);
-            navigate('/chat');
+            const response = await axios.post(
+                '/api/user',
+                {
+                    name: formData.name,
+                    email: formData.email,
+                    password: formData.password,
+                    pic: picUrl,
+                },
+                { headers: { 'Content-type': 'application/json' } }
+            );
+
+            // Destructure and store token and user data in localStorage
+            const { token, _id, name, email, pic } = response.data;
+            localStorage.setItem(
+                'userInfo',
+                JSON.stringify({ id: _id, name, email, pic, token })
+            );
+
+            console.log('Signup successful:', response.data);
+            navigate('/chat'); // Redirect to chat page after signup
         } catch (err) {
             setError(err.response?.data?.message || 'Signup failed. Please try again.');
-            console.error(err);
+            console.error('Signup error:', err);
         } finally {
             setLoading(false);
         }
     };
 
     const handleBackClick = () => {
-        navigate('/');
+        navigate('/'); // Navigate back to the homepage
     };
 
     return (
