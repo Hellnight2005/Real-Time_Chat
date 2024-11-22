@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ChatState } from '../../context/Chatrovide';
 import axios from 'axios';
 import UserListItem from '../UserAvatar/UserListItem';
 import UserBadgeItem from '../UserAvatar/UserBadgeItem';
 import { useNavigate } from 'react-router-dom';
+import gsap from 'gsap';
 
 function GroupChatModal({ isOpen, setIsOpen }) {
     const [groupchatname, setgroupchatname] = useState("");
@@ -15,6 +16,7 @@ function GroupChatModal({ isOpen, setIsOpen }) {
 
     const { userData, chats, setChats } = ChatState();
     const navigate = useNavigate();
+    const modalRef = useRef(null); // Reference for the modal container
 
     const handleSearch = async (query) => {
         setsearch(query);
@@ -39,10 +41,16 @@ function GroupChatModal({ isOpen, setIsOpen }) {
             return;
         }
         setselectedUser([...selectedUser, user]);
+        gsap.fromTo(
+            `.user-badge-${user._id}`,
+            { opacity: 0, scale: 0.5 },
+            { opacity: 1, scale: 1, duration: 0.3, ease: 'back.out(1.7)' }
+        );
     };
 
     const handleDeleteUser = (userToRemove) => {
         setselectedUser(selectedUser.filter((u) => u._id !== userToRemove._id));
+        gsap.to(`.user-badge-${userToRemove._id}`, { opacity: 0, scale: 0.5, duration: 0.3, ease: 'back.in(1.7)' });
     };
 
     const handlesubmit = async () => {
@@ -67,11 +75,39 @@ function GroupChatModal({ isOpen, setIsOpen }) {
         }
     };
 
+    // Effect to close the modal when clicking outside
+    useEffect(() => {
+        if (isOpen) {
+            gsap.fromTo(
+                '.modal-content',
+                { opacity: 0, scale: 0.8 },
+                { opacity: 1, scale: 1, duration: 0.4, ease: 'back.out(1.7)' }
+            );
+        }
+
+        // Close modal when clicking outside of it
+        const handleClickOutside = (e) => {
+            if (modalRef.current && !modalRef.current.contains(e.target)) {
+                setIsOpen(false);
+            }
+        };
+
+        if (isOpen) {
+            window.addEventListener('mousedown', handleClickOutside);
+        } else {
+            window.removeEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            window.removeEventListener('mousedown', handleClickOutside); // Cleanup on component unmount
+        };
+    }, [isOpen, setIsOpen]);
+
     if (!isOpen) return null; // Don't render the modal if it's not open
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto">
+            <div ref={modalRef} className="modal-content bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto">
                 <header className="text-center font-semibold text-lg mb-4">Create Group Chat</header>
                 <form className="flex flex-col space-y-3">
                     <input
@@ -93,6 +129,7 @@ function GroupChatModal({ isOpen, setIsOpen }) {
                             <UserBadgeItem
                                 key={user._id}
                                 user={user}
+                                className={`user-badge-${user._id}`}
                                 handleFunction={() => handleDeleteUser(user)}
                             />
                         ))}
