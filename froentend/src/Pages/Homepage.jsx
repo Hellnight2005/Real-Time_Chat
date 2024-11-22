@@ -1,8 +1,32 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { gsap } from 'gsap';
 
 function Homepage() {
     const navigate = useNavigate(); // Initialize useNavigate
+
+    useEffect(() => {
+        // GSAP animations
+        const tl = gsap.timeline();
+
+        tl.fromTo(
+            '.container',
+            { opacity: 0, y: 50 },
+            { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }
+        )
+            .fromTo(
+                '.box-decoration-clone',
+                { scale: 0, rotation: -180 },
+                { scale: 1, rotation: 0, duration: 1, ease: 'elastic.out(1, 0.5)' },
+                '-=0.5' // Overlap with the previous animation
+            )
+            .fromTo(
+                'button',
+                { opacity: 0, y: 30 },
+                { opacity: 1, y: 0, duration: 0.5, stagger: 0.2, ease: 'power3.out' },
+                '-=0.5'
+            );
+    }, []);
 
     const handleLoginClick = () => {
         navigate('/login'); // Navigate to Login
