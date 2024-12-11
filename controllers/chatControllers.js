@@ -62,22 +62,26 @@ const accessChat = asyncHandler(async (req, res) => {
 
 const fetchChat = asyncHandler(async (req, res) => {
   try {
-    Chat.find({ users: { $elemMatch: { $eq: req.user._id } } })
-      .populate("users", "-password")
-      .populate("groupAdmin", "-password")
-      .populate("latestMessage")
-      .sort({ updatedAt: -1 })
-      .then(async (results) => {
-        result = await User.populate(results, {
-          path: "latestMessage.sender",
-          select: "name pic email",
-        });
+    // Find chats involving the logged-in user
+    const results = await Chat.find({
+      users: { $elemMatch: { $eq: req.user._id } },
+    })
+      .populate("users", "-password") // Populate user details without password
+      .populate("groupAdmin", "-password") // Populate groupAdmin details without password
+      .populate("latestMessage") // Populate latest message in the chat
+      .sort({ updatedAt: -1 }); // Sort by updatedAt, most recent first
 
-        res.status(200).send(results);
-      });
+    // Populate sender information for the latest message
+    const populatedResults = await User.populate(results, {
+      path: "latestMessage.sender",
+      select: "name pic email", // Select fields for the sender
+    });
+
+    // Send the populated chat data in the response
+    res.status(200).json(populatedResults);
   } catch (error) {
-    res.status(407);
-    throw new Error(error.message);
+    // Respond with a 500 status code for internal server errors
+    res.status(500).json({ message: error.message });
   }
 });
 

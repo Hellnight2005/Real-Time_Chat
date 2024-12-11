@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ChatState } from '../context/Chatrovide';
-import SideDraw from '../components/miscellaneous/SideDraw';
+import SideDraw from '../components/miscellaneous/SideDraw'
 import MyChat from '../components/miscellaneous/MyChat'; // Import your chat component
 import ChatBox from '../components/miscellaneous/ChatBox'; // Import your chat box component
 
